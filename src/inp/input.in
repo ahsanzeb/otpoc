@@ -1,0 +1,47 @@
+
+
+task
+101
+
+nstates ! NumberOfStates
+3
+
+LargeN
+T  8
+
+N
+5
+
+FixedRhoex
+F      0
+
+M 
+1   	! vibrational cutoff
+
+
+parameters   
+4 1 1 1 1			! nm, nwr, ndel, nlam, nwv
+ 1 2 3 4 5 6 7 8 9 10 20 ! ms
+1.0						!wrs
+0.0 						! dels
+1.0       0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0						! lams
+0.2 						! wvs
+
+
+lambdaD 
+0.5        ! if M is too small, -lamd2wv will be diff from the eigval of H_D, so shift in the spectrum... 
+					! in such a case, we should first calc eigd by diagonalising H_D instead of using eigd=-lamd2wv. 
+
+
+
+TimeEvolutionParam  
+0.02 0.05 8192 8192  -2.0 2.0 T ! kappa2, dt, nt, nw, w1,w2, FFT?
+
+TimeEvolutionPrintStep
+2000
+
+DirectSolverSize
+200
+
+
+
