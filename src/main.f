@@ -18,7 +18,7 @@
 	use hamiltonian, only: MakeHhtc, HamParts
 	use diag, only: diagonalise
 	use mpi
-	use correlation, only: tcorr
+	use correlation, only: tcorr, rwallnodesx
 	use hamiltonian1, only: MakeH1,Ham1Parts,glueHblocks,glueHblocksD
 	use correlationd, only: tcorrd
 	use dmat, only: cdms, rwallnodes, cdms1, dmphot
@@ -163,10 +163,7 @@ c	m1max=min(nsym,m1max);
 		!if(writewfs) then
 		!	call iowfcombine(nact)
 		!endif
-		if(task ==301 .or. task == 302) then
-			call rwallnodes('dmup',nact)
-			call rwallnodes('dmdn',nact)
-		endif
+		call writeout(task)
 		write(*,*)"chi2: everything done.... " 
 		call timestamp(node)
 	endif
@@ -639,7 +636,6 @@ c	endif
 	! ...??? ntotg = ntot; ! set to avoid
 	! Hf%ntot is current hilbert space dimension.
 	call tcorr(dt,w1,w2,nt,nw,i,101, Hf%ntot, m) ! Hf = Hhtc in mode 1
-
 	return
 	end subroutine absorption
 	!.....................................................
@@ -677,7 +673,6 @@ c	endif
 	! calc \xi(0) = a^ LP_0 state for time evolution
 	! time evolve using H at N_ex=m-1
 	call tcorr(dt,w1,w2,nt,nw,i, 102, Hf%ntot, m)
-
 	return
 	end subroutine emission
 	!.....................................................
@@ -702,7 +697,6 @@ c	endif
 	call diagonalise(i)
 	write(*,*)'main: density-density response calculaton...'
 	call tcorr(dt,w1,w2,nt,nw,i,task, Hf%ntot, m)
-
 	return
 	end 	subroutine densityResponse
 	!.....................................................
@@ -733,6 +727,41 @@ c	endif
 
 	return
 	end 	subroutine hoppingResponse
+	!.....................................................
+	! writes output: node=0 combines all output files
+	!.....................................................
+	subroutine writeout(task)
+	implicit none
+	integer, intent(in) :: task
+	select case(task)
+	case(101) ! light absorption by the condensate
+	 call rwallnodesx('temp-t','absorption-t',nt)
+	 call rwallnodesx('temp-w','absorption-w',nw)
+	case(102) ! PL/light emission from the condensate
+	 call rwallnodesx('temp-t','emission-t',nt)
+	 call rwallnodesx('temp-w','emission-w',nw)
+	case(103,104)
+	 if(task == 103) then
+		call rwallnodesx('temp-t','hopping-up-t',nt)
+		call rwallnodesx('temp-w','hopping-up-w',nw)
+	 elseif(task==104) then
+		call rwallnodesx('temp-t','hopping-dn-t',nt)
+		call rwallnodesx('temp-w','hopping-dn-w',nw)
+	 endif
+	case(105,106)
+	 if(task == 105) then
+		call rwallnodesx('temp-t','density-up-t',nt)
+		call rwallnodesx('temp-w','density-up-w',nw)
+	 elseif(task == 106) then
+		call rwallnodesx('temp-t','density-dn-t',nt)
+		call rwallnodesx('temp-w','density-dn-w',nw)
+	 endif
+	case(301,302)
+	 call rwallnodes('dmup',nact)
+	 call rwallnodes('dmdn',nact)
+	end select
+	return
+	end subroutine writeout
 	!.....................................................
 	! response functions calculations	
 	!.....................................................

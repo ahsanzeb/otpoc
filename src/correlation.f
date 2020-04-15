@@ -127,14 +127,16 @@
 		endif
 	end do
 
-	call writecorrt(task)
+	!call writecorrt(task)
+	call writeatnode(ij0,nt,ts, corrt,'temp-t')
 	if(fft) then
 		call FFourierT()
 	else
 		call FourierT()
 	endif
-	call writecorrw(task)
-
+	!call writecorrw(task)
+	call writeatnode(ij0,nw,ws, corrw,'temp-w')
+	
 	deallocate(psi0,psit,corrt,corrw,psitnorm,ws,ts)
 
 	write(6,'(a)')'tcorr: finished...!'
@@ -366,7 +368,87 @@
 	return
 	end subroutine mkfname
 	!-------------------------------------------
+	! writes w or t 1-dimensional data: corrw, corrt
+	subroutine writeatnode(ij1,nw,ws, corrw,filename)
+	use modmain, only: node
+	implicit none
+	integer, intent(in) :: ij1, nw
+	double complex, dimension(nw), intent(in) :: corrw
+	double precision, dimension(nw), intent(in) :: ws
+	character(len=*), intent(in) :: filename
+	integer :: i
+	character :: rank*30, fname*100
 	
+	write(rank,'(i6.6)') node
+	fname = trim(filename)//'-'//trim(rank)
+	! write unformatted file
+	if(ij1==0) then
+		open(1,file=trim(fname), form="formatted", action="write")
+	else
+		open(1,file=trim(fname), form="formatted", action="write",
+     .                                      position="append")
+	endif
+
+
+	do i=1,nw
+		write(1,'(f20.10,3x,2E20.10)') ws(i),
+     .             real(corrw(i)), aimag(corrw(i))
+	end do
+	write(1,*)
+	write(1,*)
+
+
+	close(1)
+	return
+	end 	subroutine writeatnode
+	!=============================================================
+	subroutine rwallnodesx(filename,fout,nw)
+	use modmain, only: node, jobs, njobs, num_procs
+	implicit none
+
+	integer, intent(in) :: nw
+	character(len=*), intent(in) :: filename, fout
+	! local
+	double precision, dimension(nw,3) :: dat
+	integer :: i, j
+	character :: rank*30, fname*100
+
+	dat = 0.0d0;
+	
+	! output file with data from all nodes
+	fname = trim(fout)//'.dat'
+	! read unformatted file
+	open(2,file=trim(fname), form="formatted", action="write",
+     .      position="append") ! remove append?
+
+	do i=0,min(njobs,num_procs)-1
+		write(rank,'(i6.6)') i
+		fname = trim(filename)//'-'//trim(rank)
+		! read node specific output file
+		open(1,file=trim(fname), form="formatted", action="read")
+		do ij=jobs(i)%i1,jobs(i)%i2!1,jobs(i)%njobs
+			! read
+			do j=1,nw
+				read(1,*) dat(j,1:3)
+			end do
+			read(1,*) 
+			read(1,*) 
+			! write
+			do j=1,nw
+				write(2,'(f20.10,3x,2E20.10)') dat(j,1:3)
+			end do
+			write(2,*)
+			write(2,*)
+		end do
+		close(1, status='delete')
+		!shift = jobs(i)%njobs
+	end do
+	close(2)
+
+	return
+	end 	subroutine rwallnodesx
+	!=============================================================
+
 
 	end module correlation
 

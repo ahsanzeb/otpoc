@@ -268,7 +268,6 @@
 
 
 
-
 	subroutine dmphot(ij1,nj,n,p,mv,nev,dm)
 	implicit none
 	integer, intent(in) :: ij1,nj, n,p, mv,nev ! ij1: now nj can be smaller than actual total nj for a node
@@ -307,6 +306,34 @@
 	deallocate(v)
 	return
 	end subroutine dmphot
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

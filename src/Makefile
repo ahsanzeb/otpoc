@@ -47,7 +47,7 @@ diag.o: diag.f modmain.o
 correlation.o: correlation.f modmain.o 
 	 $(FC) -c $(FFLAGS) correlation.f 	
 
-correlationd.o: correlationd.f modmain.o
+correlationd.o: correlationd.f modmain.o correlation.o
 	 $(FC) -c $(FFLAGS) correlationd.f 	
 
 dm.o: dm.f modmain.o

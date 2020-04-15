@@ -2,6 +2,7 @@
 	module correlationd
 	use modmain, only: Hhop, eig, mv, kappa2,prntstep,fft,
      .								ntotgg, ntotg, ntot, ntotb, ntotdn, eigd,lamd2wv
+	use correlation, only: writeatnode
 	implicit none
 
 	public :: tcorrd
@@ -323,7 +324,6 @@
 	return
 	end subroutine mkfname
 	!-------------------------------------------
-	
 
 	end module correlationd
 
