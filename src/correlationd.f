@@ -91,7 +91,7 @@
 	endif
 
 	write(6,*)'norm of psi0 = ', sum(abs(psi0)**2)
-	write(6,*)'kappa2 = ',kappa2r
+	!write(6,*)'kappa2 = ',kappa2r
 	
 	! set psi0 and corr(t=0)
 	psitnorm(1) = real(DOT_PRODUCT(psi0, psi0));

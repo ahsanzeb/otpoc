@@ -119,7 +119,8 @@
 		basis%sec(p)%f = basis%sec(n)%f;
 	end do
 
-
+	!call writebasisf()
+	
 	! calc ratios: basis%sec(p)%r(k,i) = sqrt(P_{p}(i)/P_{p+1}(j)); j=map(k,i)
 	call PermRatios(n,mv) 
 	
@@ -192,5 +193,21 @@
 	return
 	end 	subroutine writebasis
 	!===================================================================
+
+	!===================================================================
+	! writes basis%sec%f
+	subroutine writebasisf()
+	implicit none
+	integer :: i
+		open(1,file='basis-f.dat', form="formatted", action="write")
+			write(1,*) basis%sec(n)%ntot
+			do i=1,basis%sec(n)%ntot
+			 write(1,'(1000i10)') basis%sec(n)%f(:,i)
+			end do
+		close(1)
+	return
+	end 	subroutine writebasisf
+	!===================================================================
+
 
 	end !module basis

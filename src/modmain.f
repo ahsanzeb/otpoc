@@ -45,7 +45,8 @@
 	logical :: lcdms ! conditional density matrices ?
 	
 	logical :: debug
-	
+
+	logical :: ddiagOK ! direct diagonalisation OK? calc and saves wavefunctions... 
 	integer :: node, num_procs, njobs ! number of processors, number of jobs
 	integer :: mynode
 	!integer(kind=MPI_OFFSET_KIND), dimension(:,:), allocatable :: iodisp 
@@ -383,6 +384,7 @@
 	anev = 1;
 	mode = -1;
 	task = -1;
+	ddiagOK = .true.
 	!--------------------------!
 	!     read from input.in   !
 	!--------------------------!

@@ -33,6 +33,7 @@
 	! local
 	integer :: i, nsize
 	double precision:: dw
+	double complex :: e0dt
 
 	ntot = ntotl; ! ntot of this module, not of modmain.
 	
@@ -97,7 +98,7 @@
 	endif
 
 	write(6,*)'norm of psi0 = ', sum(abs(psi0)**2)
-	write(6,*)'kappa2 = ',kappa2r
+	!write(6,*)'kappa2 = ',kappa2r
 	
 	! set psi0 and corr(t=0)
 	psitnorm(1) = real(DOT_PRODUCT(psi0, psi0));
@@ -106,10 +107,13 @@
 	psit(:) = psi0(:);
 	corrt(1) = dcmplx(1.0, 0.0); !DOT_PRODUCT(psi0, psit);  
 
+	e0dt = (-iotam*eig0%eval(1)-kappa2r)*dt;
+	
 	write(6,'(a,f15.10)')'ELP= ',eig(ij0)%eval(1);
 	do i=2,nt
 		call rk4step(psit)
-		phase = zexp((-iotam*eig(ij0)%eval(1)-kappa2r)*(i-1)*dt);
+		!phase = zexp((-iotam*eig(ij0)%eval(1)-kappa2r)*(i-1)*dt);
+		phase = zexp((i-1)*e0dt);
 		corrt(i) = DOT_PRODUCT(psi0, psit) * phase
 
 		psitnorm(i) = real(DOT_PRODUCT(psit, psit))

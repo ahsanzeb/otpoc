@@ -752,7 +752,7 @@
 	!write(*,*)'============ Full hamiltonain =========='
 	Hf%dense = .false.
 	Hf%ntot = ntotg ! dimension of full hilbert space
-	if (Hf%ntot .le. nmaxddiag) then 
+	if (Hf%ntot .le. nmaxddiag .and. ddiagOK) then 
 		! Hf in dense format and use direct diagonalisation
 		Hf%dense = .true.
 		n1 =Hf%ntot;

@@ -14,7 +14,7 @@
 	program chi2
 	use modmain
 	use maps, only: getmap, writemap
-	use bases, only: PermSymBasis, writebasis
+	use bases, only: PermSymBasis, writebasis, writebasisf
 	use hamiltonian, only: MakeHhtc, HamParts
 	use diag, only: diagonalise
 	use mpi
@@ -55,7 +55,7 @@
 			call PermSymBasis(n,mv)
 			! write output files
 			call writemap()
-			call writebasis()	
+			call writebasis()
 		endif
 		stop "htc: basis and map written to files... done!"
 	endif
@@ -606,7 +606,7 @@ c	m1max=min(nsym,m1max);
 	subroutine absorption(i) !(i,ijob,n, nsym,m,m1max, mv, chi, newm)
 	implicit none
 	integer, intent(in) :: i
-
+	ddiagOK = .true.
 c	if(m==0) then
 c	 call setm0variables(i,n,mv,newm) ! set init state manually.
 c	 call seteig0(i)
@@ -627,6 +627,7 @@ c	endif
 	m1max = min(m+1, nsym); 
 	! calc H at N_ex=m+1 for time evolution
 	call HamParts(nsym,m+1,mv)
+	ddiagOK = .false.
 	call MakeHhtc(nsym, ijob, mode)
 
 	!write(6,*)'main: tcorr(..,ntot), ntot = ',ntot
@@ -647,7 +648,7 @@ c	endif
 	subroutine emission(i) !(i,ijob,n, nsym,m,m1max, mv, chi, newm)
 	implicit none
 	integer, intent(in) :: i
-
+	ddiagOK = .true.
 	if(m==0) then
 	 write(6,'(a)') "Error: N_ex > 0  for Emission task 102..."
 	 stop
@@ -665,6 +666,7 @@ c	endif
 	! save LP_0 for time evolution
 	call seteig0(i)
 
+	ddiagOK = .false.
 	m1max = min(m-1, nsym);
 	! calc H at N_ex=m-1 for time evolution
 	call HamParts(nsym,m-1,mv)
@@ -681,7 +683,7 @@ c	endif
 	subroutine densityResponse(task)
 	implicit none
 	integer, intent(in) :: task
-
+	ddiagOK = .false.;
 	! parts of hamiltonian
 	if(newm) then
 		call HamParts(nsym,m,mv)
@@ -705,7 +707,7 @@ c	endif
 	subroutine hoppingResponse(task)
 	implicit none
 	integer, intent(in) :: task
-
+	ddiagOK = .false.
 	! parts of hamiltonian
 	if(newm) then
 		call HamParts(nsym,m,mv)

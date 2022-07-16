@@ -663,7 +663,7 @@ c		ntotnp=min(basis%sec(n-p-1)%ntot,ii);! states for which n-p block states are 
 	Hf%dense = .false.
 	Hf%ntot = Hg%ntot ! dimension of full hilbert space
 	Hf%nnz = Hhtc%nnz; 
-	if (Hf%ntot .le. nmaxddiag) then 
+	if (Hf%ntot .le. nmaxddiag .and. ddiagOK) then 
 		! Hhtc in dense format and use direct diagonalisation
 		Hf%dense = .true.
 		n1 =Hf%ntot;
