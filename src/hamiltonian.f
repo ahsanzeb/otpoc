@@ -213,6 +213,11 @@ c		ntotnp=min(basis%sec(n-p-1)%ntot,ii);! states for which n-p block states are 
 		end do! ind: nnz elements in p-th sector
 	end do! p: exciton-photon sectors
 
+
+	! AHSAN, JULY
+	if(allocated(Hg%sec)) deallocate(Hg%sec)
+
+
 	!-----------------------------------------------
 	! allocate mem to hold final Hg in CSR format
 	!if(allocated(Hg%rowpntr)) deallocate(Hg%rowpntr)
@@ -527,7 +532,7 @@ c		ntotnp=min(basis%sec(n-p-1)%ntot,ii);! states for which n-p block states are 
 		! subroutine sumdup( nrow, nnz, ir, jc, a, nnzu, iro, jo, aoo )
 		nrow = basis%sec(p)%ntot ! not full Hg%sec(p)%ntot
 		nnz = Hb%sec(p)%nnz;
-		!write(*,*) 'p =', p, 'nrow = ',nrow, 'nnz = ', nnz
+		
 		call sumdup(nrow, nnz, 
      .          Hb%sec(p)%row, Hb%sec(p)%col, Hb%sec(p)%vdat,
      .          nnzu, iro(1:nnz), jco(1:nnz), aoo(1:nnz))
@@ -563,6 +568,14 @@ c		ntotnp=min(basis%sec(n-p-1)%ntot,ii);! states for which n-p block states are 
 		spref = spref + nnzu*nnp; ! sparse coo reference for p-th block
 		Hb%spntr(p+1) = spref + 1
 	end do
+
+
+	! AHSAN, JULY
+	deallocate(iro)
+	deallocate(jco)
+	deallocate(aoo)
+	if(allocated(Hb%sec)) deallocate(Hb%sec)
+
 
 	! use this to construct full hamiltonian, multiply wv, lambda etc there....
 	! NOTE: only first spref elements of Hb%coo1 , Hb%coo12, Hb%coodat arrays are significant.
@@ -658,6 +671,26 @@ c		ntotnp=min(basis%sec(n-p-1)%ntot,ii);! states for which n-p block states are 
 
 	!write(*,*) 'Hdv: n1, n2 = ',n1, n2 
 
+
+
+	! AHSAN, JULY
+	if(allocated(Hg%coo1))deallocate(Hg%coo1)
+	if(allocated(Hg%coo2))deallocate(Hg%coo2)
+	if(allocated(Hg%coodat))deallocate(Hg%coodat)
+
+	if(allocated(Hb%coo1))deallocate(Hb%coo1)
+	if(allocated(Hb%coo2))deallocate(Hb%coo2)
+	if(allocated(Hb%coodat))deallocate(Hb%coodat)
+
+	if(allocated(Hd)) deallocate(Hd)
+	if(allocated(Hv)) deallocate(Hv)
+
+
+
+
+
+
+
 	!write(*,*)'============ htc =========='
 	
 	Hf%dense = .false.
@@ -689,12 +722,14 @@ c		ntotnp=min(basis%sec(n-p-1)%ntot,ii);! states for which n-p block states are 
 	
 	endif
 
+	! ASHAN, JULY
+	if(allocated(Hhtc%coo1))deallocate(Hhtc%coo1)
+	if(allocated(Hhtc%coo2))deallocate(Hhtc%coo2)
+	if(allocated(Hhtc%coodat))deallocate(Hhtc%coodat)
 
 	return
 	end subroutine MakeHhtc
 	!--------------------------------------------------
-
-
 
 
 
@@ -959,6 +994,11 @@ c		ntotnp=min(basis%sec(n-p-1)%ntot,ii);! states for which n-p block states are 
 
 	!set total non-zero elements in out arrays
 	nnzout = nset
+
+	if(nnzout .ne. nnz) then
+		write(*,*) 'rowadddup is useful: nnz, nnzout = ',nnz, nnzout
+	endif
+	
 	return
 	end subroutine rowadddup
 !----------------------------------------------------------------------

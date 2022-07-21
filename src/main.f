@@ -11,7 +11,7 @@
 ! further details in doc.
 
 
-	program chi2
+	program otpoc
 	use modmain
 	use maps, only: getmap, writemap
 	use bases, only: PermSymBasis, writebasis, writebasisf
@@ -164,7 +164,7 @@ c	m1max=min(nsym,m1max);
 		!	call iowfcombine(nact)
 		!endif
 		call writeout(task)
-		write(*,*)"chi2: everything done.... " 
+		write(*,*)"otpoc: everything done.... " 
 		call timestamp(node)
 	endif
 
@@ -792,6 +792,7 @@ c	endif
 	integer :: n1,n2, nev1, i1,i2,p
 	double precision, dimension(nev) :: val
 	double precision :: fac
+	character :: rank*30, fname*100
 	
 	! calc H at N_ex=m to get its LP_0 eigenstate
 	if(newm) then
@@ -830,7 +831,15 @@ c	endif
 	 i1 = i2;
 	enddo
 
-	open(12,file='absorption.dat',action='write',position='append')
+	if (num_procs> 1) then
+		write(rank,'(i6.6)') node
+		fname = 'absorption-'//trim(rank)
+	else
+		fname = 'absorption.dat'
+	endif
+
+
+	open(12,file=trim(fname),action='write',position='append')
 		! output file data order: n, m, A^0, A^1, ...., A^nev1, Einit^LP_0, E^0, E^1,...,E^nev1
 		write(12,'(2i10,2x,100000f25.15)') n, m, val(1:nev1),
      .      eig0%eval(1), eig(i)%eval(1:nev1)
@@ -877,6 +886,10 @@ c	endif
 	eig0%evec = eig(i)%evec
 	eig0%eval = eig(i)%eval
 
+	! AHSAN, JULY
+	deallocate(eig(i)%evec)
+	deallocate(eig(i)%eval)
+
 	!write(6,*) '===========>> '
 	m1max = min(m-1,nsym); ! or m-1??? ! used in various ham routines...
 
@@ -918,7 +931,7 @@ c	end do
 
 	open(12,file='emission.dat',action='write',position='append')
 		! output file data order: n, m, A^0, A^1, ...., A^nev1, Einit^LP_0, E^0, E^1,...,E^nev1
-		write(12,'(2i10,2x,100000f25.15)') n, m, val(1:nev1),
+		write(12,'(2i10,2x,100000f25.15)') nact, m, val(1:nev1),
      .      eig0%eval(1), eig(i)%eval(1:nev1)
 	close(12)
 
@@ -1007,7 +1020,7 @@ c	end do
 	logical, intent(inout) :: newm
 	
 	write(*,*) 'main: m=0 .... ' 
-	! .or. param(ijob-1)%m==0 testing absorption at m=0 using chi2
+	! .or. param(ijob-1)%m==0 testing absorption at m=0 using otpoc
 			! allocate space for basis, and calc maps, etc.
 	!---------- called once for a given n,m,mv [all m?]---------
 	call getmap(n,mv) !,ntot) ! ntot output
@@ -1043,7 +1056,7 @@ c	end do
 		deallocate(eig0%evec,eig0%eval)
 	endif
 	n1 = eig(i)%n1;
-	n2 = eig(i)%n2;
+	n2 = 1; !eig(i)%n2; ! only LP0 required, so save memory here.
 	eig0%ntot = n1;
 	eig0%n1 = n1; 
 	eig0%n2 = n2;
@@ -1068,4 +1081,4 @@ c	end do
 
 
 
-	end program chi2
+	end program otpoc

@@ -102,8 +102,10 @@
 	
 	! set psi0 and corr(t=0)
 	psitnorm(1) = real(DOT_PRODUCT(psi0, psi0));
-	psi0 = psi0/dsqrt(psitnorm(1));
-	psitnorm(1)=1.0d0;
+	! normalisation of psi0 will not let comparison 
+	! of peak hights of the spectrum at diff paramters
+	!psi0 = psi0/dsqrt(psitnorm(1));
+	!psitnorm(1)=1.0d0;
 	psit(:) = psi0(:);
 	corrt(1) = dcmplx(1.0, 0.0); !DOT_PRODUCT(psi0, psit);  
 
