@@ -1,0 +1,1 @@
+A code to efficiently solve Holstein-Tavis-Cummings model for large enough system sizes. It exploits the permutation symmetry and calculates the ground state, optical absorption, and some response functions related to the charge hopping through a polariton condensate. 
